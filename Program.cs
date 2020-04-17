@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace PrototypeExercise
 {
@@ -16,7 +18,13 @@ namespace PrototypeExercise
 
         public Line DeepCopy()
         {
-            return this; // bug
+            using (var ms = new MemoryStream())
+            {
+                var xmlSerializer = new XmlSerializer(typeof(Line));
+                xmlSerializer.Serialize(ms, this);
+                ms.Position = 0;
+                return xmlSerializer.Deserialize(ms) as Line; // bug
+            }
         }
     }
     public class Program
@@ -29,10 +37,10 @@ namespace PrototypeExercise
 
         static void Main(string[] args)
         {
-            var line1 = new Line 
-            { 
+            var line1 = new Line
+            {
                 Start = new Point { X = 0, Y = 0 },
-                End = new Point { X = 2, Y = 2}
+                End = new Point { X = 2, Y = 2 }
             };
 
             var line2 = line1.DeepCopy();
@@ -40,7 +48,7 @@ namespace PrototypeExercise
             line2.End.Y = 10;
 
             Console.WriteLine("If deep copy done right, these lines will have different coordinate values.\n");
-            Console.WriteLine(nameof(line1)); 
+            Console.WriteLine(nameof(line1));
             PrintLine(line1); // if deep copy done right, these values will be the originals
 
             Console.WriteLine(nameof(line2));
